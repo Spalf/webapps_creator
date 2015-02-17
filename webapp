@@ -19,9 +19,9 @@ create_new_django_project(){
  touch /$ROOTDIR/$PROJECTDIR/logs/gunicorn_supervisor.log
 
  echo -e "Создаем файлы конфигурации Nginx, Gunicorn и Supervisor из шаблонов"
- create_config "./config/nginx-site" "/etc/nginx/sites-available/$PROJECTNAME"
- create_config "./config/gunicorn_start" "/$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
- create_config "./config/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
+ create_config "./configs/nginx-vhost-config" "/etc/nginx/sites-available/$PROJECTNAME"
+ create_config "./configs/gunicorn_start" "/$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
+ create_config "./configs/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
 
  supervisorctl reread
  ln -s /etc/nginx/sites-available/$PROJECTNAME /etc/nginx/sites-enabled/$PROJECTNAME
@@ -76,7 +76,7 @@ if [[ $EUID -ne 0 ]]; then
 else
  case "$1" in
    remove)
-   echo "Удаляйте в ручную :3"
+   echo "Удаляйте вручную :3"
    ;;
    *)
     echo "Создаем новый проект на Django? (y/[a])"
