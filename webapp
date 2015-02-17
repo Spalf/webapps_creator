@@ -1,0 +1,90 @@
+#!/bin/bash
+
+source ./webapp.conf
+
+create_config(){
+ cat $1 | \
+ sed -e s/PROJECTNAME/${PROJECTNAME}/g | \
+ sed -e s/UNIXUSERNAME/${UNIXUSERNAME}/g | \
+ sed -e s/SITENAME/${SITENAME}/g > $2
+ echo -e "Записан файл $2"
+}
+
+create_new_django_project(){
+ echo -e "Создаем пользователя $UNIXUSERNAME с домашней директорией /$ROOTDIR/$PROJECTDIR"
+# useradd --system --gid $ROOTDIR --shell /bin/bash --home /$ROOTDIR/$PROJECTDIR $UNIXUSERNAME
+ echo -e "Создаем директорию приложения /$ROOTDIR/$PROJECTDIR"
+ mkdir -p /$ROOTDIR/$PROJECTDIR/bin
+ mkdir -p /$ROOTDIR/$PROJECTDIR/logs
+ touch /$ROOTDIR/$PROJECTDIR/logs/gunicorn_supervisor.log
+
+ echo -e "Создаем файлы конфигурации Nginx, Gunicorn и Supervisor из шаблонов"
+ create_config "./config/nginx-site" "/etc/nginx/sites-available/$PROJECTNAME"
+ create_config "./config/gunicorn_start" "/$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
+ create_config "./config/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
+
+ supervisorctl reread
+ ln -s /etc/nginx/sites-available/$PROJECTNAME /etc/nginx/sites-enabled/$PROJECTNAME
+ chmod u+x /$ROOTDIR/$PROJECTDIR/bin/gunicorn_start 
+
+ echo -e "Назначаем ${UNIXUSERNAME}:users владельцем /$ROOTDIR/$PROJECTDIR"
+# chown -R ${UNIXUSERNAME}:users /$ROOTDIR/$PROJECTDIR/
+ echo -e "Применяем chmod -R g+w к /$ROOTDIR/$PROJECTDIR"
+ chmod -R g+w /$ROOTDIR/$PROJECTDIR
+
+ comlete_task
+}
+
+get_settings_for_new_django_project(){
+ while [ "$APPROVE" != "y" ]; do
+   while [ "$PROJECTNAME" = "" ]; do
+    echo "Введите имя проекта (например myproject): "
+    read PROJECTNAME
+    [ "$PROJECTNAME" = "" ] && echo "Имя проекта не может быть пустым."
+   done
+   PROJECTDIR="${PROJECTNAME}_django"
+
+   UNIXUSERNAME=""
+   echo "Введите имя пользователя для запуска приложения (можно оставить пустым, если совпадает с именем проекта): "
+   read UNIXUSERNAME
+   [ "$UNIXUSERNAME" = "" ] && UNIXUSERNAME=$PROJECTNAME
+
+   while [ "$SITENAME" = "" ]; do
+    echo "Полное доменное имя сайта (например lp.example.pro): "
+    read SITENAME
+    [ "$SITENAME" = "" ] && echo "Доменное имя не может быть пустым."
+   done
+
+   echo -e "Будет создан проект со следующими параметрами: \n\
+   Название проекта: $PROJECTNAME \n\
+   Имя пользователя: $UNIXUSERNAME \n\
+   Доменные имена: $SITENAME и www.$SITENAME \n\
+   Рабочий каталог: /$ROOTDIR/$PROJECTDIR \n\
+   Каталог журналов: /$ROOTDIR/$PROJECTDIR/logs \n\
+   Каталог с файлами Django: /$ROOTDIR/$PROJECTDIR/$PROJECTNAME \n\
+   \n Информация верна? (y/[n]/a)"
+   read APPROVE
+   [ "$APPROVE" = "a" ] && exit 1
+ done
+
+ create_new_django_project
+}
+
+if [[ $EUID -ne 0 ]]; then
+ echo "Скрипт необходимо запускать с правами суперпользователя!"
+ exit 1
+else
+ case "$1" in
+   remove)
+   echo "Удаляйте в ручную :3"
+   ;;
+   *)
+    echo "Создаем новый проект на Django? (y/[a])"
+    read ANSWER
+    if [ "$ANSWER" = "y" ]; then
+      get_settings_for_new_django_project
+      else exit 1
+    fi
+   ;;
+ esac
+fi
