@@ -1,0 +1,49 @@
+upstream PROJECTNAME_django_server {
+ server unix:/webapps/PROJECTNAME_django/run/gunicorn.sock fail_timeout=0;
+}
+
+server {
+   listen 80;
+   server_name www.SITENAME
+   return 301 http://SITENAME$request_uri;
+}
+
+server {
+
+   listen   80;
+   server_name SITENAME;
+
+   client_max_body_size 4G;
+
+   access_log /webapps/PROJECTNAME_django/logs/nginx-access.log;
+   error_log /webapps/PROJECTNAME_django/logs/nginx-error.log;
+
+   location ~* ^.+.(jpg|jpeg|gif|png|ico|css|pdf|ppt|txt|bmp|rtf|js)$ {
+       root /webapps/PROJECTNAME_django/PROJECTNAME;
+       expires 365d;
+   }
+
+   location /static/ {
+       alias   /webapps/PROJECTNAME_django/PROJECTNAME/static/;
+   }
+
+   location /media/ {
+       alias   /webapps/PROJECTNAME_django/PROJECTNAME/media/;
+   }
+
+   location / {
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header Host $http_host;
+       proxy_redirect off;
+       if (!-f $request_filename) {
+           proxy_pass http://PROJECTNAME_django_server;
+           break;
+       }
+   }
+
+   # Error pages
+   error_page 500 502 503 504 /500.html;
+   location = /500.html {
+       root /webapps/PROJECTNAME_django/PROJECTNAME/static/;
+   }
+}
