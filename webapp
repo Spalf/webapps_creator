@@ -82,19 +82,19 @@ create_new_django_project(){
 get_settings_for_new_django_project(){
   while [ "$APPROVE" != "y" ]; do
     while [ "$PROJECTNAME" = "" ]; do
-      echo "Введите имя проекта (например myproject): "
+      echo "Введите имя проекта (например example_com): "
       read PROJECTNAME
       [ "$PROJECTNAME" = "" ] && echo "Имя проекта не может быть пустым."
     done
     PROJECTDIR="${PROJECTNAME}_django"
 
     UNIXUSERNAME=""
-    echo "Введите имя пользователя для запуска приложения (можно оставить пустым, если совпадает с именем проекта): "
+    echo "Введите имя пользователя для запуска приложения (например expample, можно оставить пустым, если совпадает с именем проекта): "
     read UNIXUSERNAME
     [ "$UNIXUSERNAME" = "" ] && UNIXUSERNAME=$PROJECTNAME
 
     while [ "$SITENAME" = "" ]; do
-      echo "Полное доменное имя сайта (например lp.example.pro): "
+      echo "Полное доменное имя сайта (например example.com): "
       read SITENAME
       [ "$SITENAME" = "" ] && echo "Доменное имя не может быть пустым."
     done
