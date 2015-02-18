@@ -1,3 +1,4 @@
 # [Дополнительные параметры]
 MAILTO="foo@foo.bar"
-ROOTDIR="dir"
+ROOTDIR="/dir"
+WEBAPPGROUP="wgroup"
