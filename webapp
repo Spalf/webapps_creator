@@ -2,10 +2,38 @@
 
 source ./webapp.conf
 
-create_message(){
+create_ps_db(){
+  SECUREPASS=`tr -dc A-Za-z0-9 < /dev/urandom | head -c 20 | xargs`
+  echo "Создаем пользователя $PROJECTDIR c паролем $SECUREPASS и базу $PROJECTDIR"
+  sudo -u postgres createuser -U $PROJECTDIR -W $SECUREPASS
+  sudo -u postgres createdb --owner $PROJECTDIR $UNIXUSERNAME
 }
 
 comlete_task(){
+  echo -e "Subject: Был создан проект $PROJECTDIR\n\
+  Был создан проект со следующими параметрами: \n\
+  Директория проекта: /$ROOTDIR/$PROJECTDIR/$PROJECTNAME \n\
+  Директория virtualenv окружения: /$ROOTDIR/$PROJECTDIR \n\
+  Директория файлов журнала: /$ROOTDIR/$PROJECTDIR/logs \n\
+  Файл конфигурации nginx: /etc/nginx/site-available/$PROJECTNAME \n\
+  Файл конфигурации supervisor: /etc/supervisor/conf.d/${PROJECTNAME}.conf \n\
+  Файл запуска Gunicorn: /$ROOTDIR/$PROJECTDIR/bin/gunicorn_start \n\
+  Название проекта: $PROJECTNAME и $PROJECTDIR \n\
+  Доменное имя сайта: $SITENAME и переадресация с www.$SITENAME \n\
+  \n\
+  Необходимо создать или перенести само Django-приложение \n\
+  Незабудьте выполнить sudo supervisorctl update и sudo service nginx reload \n\
+  а также добавить Gunicorn в список зависимостей или установить его отдельно в virtualenv \n"\
+  > /$ROOTDIR/$PROJECTDIR/README.txt
+
+  if [ "$PSCREATE" = "y" ]; then
+    echo -e "\nТакже была создана база данных PostreSQL $PROJECTNAME \n\
+    Имя пользователя: $PROJECTDIR\n\
+    Пароль: $SECUREPASS"\
+    > /$ROOTDIR/$PROJECTDIR/README.txt
+  fi
+  
+  cat /$ROOTDIR/$PROJECTDIR/README.txt | sendmail $MAILTO
 }
 
 create_config(){
@@ -19,7 +47,7 @@ create_config(){
 
 create_new_django_project(){
   echo -e "Создаем пользователя $UNIXUSERNAME с домашней директорией /$ROOTDIR/$PROJECTDIR"
-# useradd --system --gid $ROOTDIR --shell /bin/bash --home /$ROOTDIR/$PROJECTDIR $UNIXUSERNAME
+  useradd --system --gid $ROOTDIR --shell /bin/bash --home /$ROOTDIR/$PROJECTDIR $UNIXUSERNAME
   echo -e "Создаем директорию приложения /$ROOTDIR/$PROJECTDIR"
   mkdir -p /$ROOTDIR/$PROJECTDIR/bin
   mkdir -p /$ROOTDIR/$PROJECTDIR/logs
@@ -35,11 +63,18 @@ create_new_django_project(){
   chmod u+x /$ROOTDIR/$PROJECTDIR/bin/gunicorn_start 
 
   echo -e "Назначаем ${UNIXUSERNAME}:users владельцем /$ROOTDIR/$PROJECTDIR"
-# chown -R ${UNIXUSERNAME}:users /$ROOTDIR/$PROJECTDIR/
+  chown -R ${UNIXUSERNAME}:users /$ROOTDIR/$PROJECTDIR/
   echo -e "Применяем chmod -R g+w к /$ROOTDIR/$PROJECTDIR"
   chmod -R g+w /$ROOTDIR/$PROJECTDIR
 
-  comlete_task
+  echo -e "Создаем virtualenv"
+  sudo -u $UNIXUSERNAME virtualenv /$ROOTDIR/$PROJECTDIR
+  
+  echo -e "Создать базу данных PostreSQL (y/[n])?"
+  read PSCREATE
+  [ "$PSCREATE" = "y" ] && create_ps_db
+
+  complete_task
 }
 
 get_settings_for_new_django_project(){
