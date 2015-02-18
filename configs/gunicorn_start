@@ -1,8 +1,8 @@
 #!/bin/bash
 
 NAME="PROJECTNAME"
-DJANGODIR=/webapps/PROJECTNAME_django/PROJECTNAME
-SOCKFILE=/webapps/PROJECTNAME_django/run/gunicorn.sock
+DJANGODIR=/webapps/PROJECTDIR/PROJECTNAME
+SOCKFILE=/webapps/PROJECTDIR/run/gunicorn.sock
 USER=UNIXUSERNAME
 GROUP=webapps
 NUM_WORKERS=3

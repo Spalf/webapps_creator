@@ -1,5 +1,5 @@
-upstream PROJECTNAME_django_server {
- server unix:/webapps/PROJECTNAME_django/run/gunicorn.sock fail_timeout=0;
+upstream PROJECTDIR_server {
+ server unix:/webapps/PROJECTDIR/run/gunicorn.sock fail_timeout=0;
 }
 
 server {
@@ -15,20 +15,20 @@ server {
 
    client_max_body_size 4G;
 
-   access_log /webapps/PROJECTNAME_django/logs/nginx-access.log;
-   error_log /webapps/PROJECTNAME_django/logs/nginx-error.log;
+   access_log /webapps/PROJECTDIR/logs/nginx-access.log;
+   error_log /webapps/PROJECTDIR/logs/nginx-error.log;
 
    location ~* ^.+.(jpg|jpeg|gif|png|ico|css|pdf|ppt|txt|bmp|rtf|js)$ {
-       root /webapps/PROJECTNAME_django/PROJECTNAME;
+       root /webapps/PROJECTDIR/PROJECTNAME;
        expires 365d;
    }
 
    location /static/ {
-       alias   /webapps/PROJECTNAME_django/PROJECTNAME/static/;
+       alias   /webapps/PROJECTDIR/PROJECTNAME/static/;
    }
 
    location /media/ {
-       alias   /webapps/PROJECTNAME_django/PROJECTNAME/media/;
+       alias   /webapps/PROJECTDIR/PROJECTNAME/media/;
    }
 
    location / {
@@ -36,7 +36,7 @@ server {
        proxy_set_header Host $http_host;
        proxy_redirect off;
        if (!-f $request_filename) {
-           proxy_pass http://PROJECTNAME_django_server;
+           proxy_pass http://PROJECTDIR_server;
            break;
        }
    }
@@ -44,6 +44,6 @@ server {
    # Error pages
    error_page 500 502 503 504 /500.html;
    location = /500.html {
-       root /webapps/PROJECTNAME_django/PROJECTNAME/static/;
+       root /webapps/PROJECTDIR/PROJECTNAME/static/;
    }
 }
