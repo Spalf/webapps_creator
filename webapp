@@ -67,14 +67,14 @@ create_new_django_project(){
   echo -e "Назначаем ${UNIXUSERNAME}:users владельцем $ROOTDIR/$PROJECTDIR"
   chown -R ${UNIXUSERNAME}:users $ROOTDIR/$PROJECTDIR/
   echo -e "Применяем chmod -R g+w к $ROOTDIR/$PROJECTDIR"
-  chmod -R g+w $ROOTDIR/$PROJECTDIR
+  chmod -R 755 $ROOTDIR/$PROJECTDIR
 
   echo -e "Создаем virtualenv"
   sudo -u $UNIXUSERNAME virtualenv $ROOTDIR/$PROJECTDIR
   
   echo -e "Создать базу данных PostreSQL (y/[n])?"
   read PSCREATE
-  [ "$PSCREATE" = "y" ] && create_ps_db
+  [ "$PSCREATE" = "y" ] && echo "пока руками"
 
   comlete_task
 }
