@@ -13,7 +13,7 @@ server {
    listen   80;
    server_name SITENAME;
 
-   client_max_body_size 4G;
+   client_max_body_size 50m;
 
    access_log /webapps/PROJECTDIR/logs/nginx-access.log;
    error_log /webapps/PROJECTDIR/logs/nginx-error.log;
