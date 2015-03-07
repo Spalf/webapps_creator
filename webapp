@@ -56,8 +56,8 @@ create_new_django_project(){
   touch $ROOTDIR/$PROJECTDIR/logs/gunicorn_supervisor.log
 
   echo -e "Создаем файлы конфигурации Nginx, Gunicorn и Supervisor из шаблонов"
-  create_config "./configs/nginx-vhost-config" "/etc/nginx/sites-available/${PROJECTNAME}.conf"
-  create_config "./configs/gunicorn_start" "$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
+  create_config "./configs/nginx-vhost-config.conf" "/etc/nginx/sites-available/${PROJECTNAME}.conf"
+  create_config "./configs/gunicorn_start.sh" "$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
   create_config "./configs/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
 
   chmod u+x $ROOTDIR/$PROJECTDIR/bin/gunicorn_start 
