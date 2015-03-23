@@ -17,9 +17,9 @@ comlete_task(){
   Директория проекта: $ROOTDIR/$PROJECTDIR/$PROJECTNAME \n\
   Директория virtualenv окружения: $ROOTDIR/$PROJECTDIR \n\
   Директория файлов журнала: $ROOTDIR/$PROJECTDIR/logs \n\
-  Файл конфигурации nginx: /etc/nginx/site-available/$PROJECTNAME \n\
+  Файл конфигурации nginx: /etc/nginx/site-available/$PROJECTNAME.conf \n\
   Файл конфигурации supervisor: /etc/supervisor/conf.d/${PROJECTNAME}.conf \n\
-  Файл запуска Gunicorn: $ROOTDIR/$PROJECTDIR/bin/gunicorn_start \n\
+  Файл запуска Gunicorn: $ROOTDIR/$PROJECTDIR/bin/gunicorn_start.sh \n\
   Название проекта: $PROJECTNAME и $PROJECTDIR \n\
   Доменное имя сайта: $SITENAME и переадресация с www.$SITENAME \n\
   \n\
@@ -58,10 +58,10 @@ create_new_django_project(){
 
   echo -e "Создаем файлы конфигурации Nginx, Gunicorn и Supervisor из шаблонов"
   create_config "./configs/nginx-vhost-config.conf" "/etc/nginx/sites-available/${PROJECTNAME}.conf"
-  create_config "./configs/gunicorn_start.sh" "$ROOTDIR/$PROJECTDIR/bin/gunicorn_start"
+  create_config "./configs/gunicorn_start.sh" "${ROOTDIR}/{$PROJECTDIR}/bin/gunicorn_start.sh"
   create_config "./configs/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
 
-  chmod u+x $ROOTDIR/$PROJECTDIR/bin/gunicorn_start 
+  chmod u+x $ROOTDIR/$PROJECTDIR/bin/gunicorn_start.sh
   supervisorctl reread
   ln -s /etc/nginx/sites-available/${PROJECTNAME}.conf /etc/nginx/sites-enabled/${PROJECTNAME}.conf
 
