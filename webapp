@@ -53,6 +53,7 @@ create_new_django_project(){
   echo -e "Создаем директорию приложения $ROOTDIR/$PROJECTDIR"
   mkdir -p $ROOTDIR/$PROJECTDIR/bin
   mkdir -p $ROOTDIR/$PROJECTDIR/logs
+  mkdir -p $ROOTDIR/$PROJECTDIR/$PROJECTNAME
   touch $ROOTDIR/$PROJECTDIR/logs/gunicorn_supervisor.log
 
   echo -e "Создаем файлы конфигурации Nginx, Gunicorn и Supervisor из шаблонов"
