@@ -61,7 +61,7 @@ create_new_django_project(){
   create_config "./configs/gunicorn_start.sh" "${ROOTDIR}/{$PROJECTDIR}/bin/gunicorn_start.sh"
   create_config "./configs/supervisor.conf" "/etc/supervisor/conf.d/${PROJECTNAME}.conf"
 
-  chmod u+x $ROOTDIR/$PROJECTDIR/bin/gunicorn_start.sh
+  chmod u+x $ROOTDIR/${PROJECTDIR}/bin/gunicorn_start.sh
   supervisorctl reread
   ln -s /etc/nginx/sites-available/${PROJECTNAME}.conf /etc/nginx/sites-enabled/${PROJECTNAME}.conf
 
